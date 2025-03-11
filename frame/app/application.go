@@ -24,7 +24,7 @@ type Application struct {
 
 func New() *Application {
 	// 加载环境变量
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env", "config/.env"); err != nil {
 		log.Fatal(err)
 	}
 

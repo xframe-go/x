@@ -52,5 +52,14 @@ func (x *XHttp) Start() error {
 	//x.engine.HideBanner = true
 	//x.engine.HidePort = true
 	x.engine.Debug = true
+
+	if len(x.cfg.PublishDir) > 0 {
+		x.engine.Static("/", x.cfg.PublishDir)
+	}
+
+	if x.cfg.PublicFS != nil {
+		x.engine.StaticFS("/", x.cfg.PublicFS)
+	}
+
 	return x.engine.Start(addr)
 }

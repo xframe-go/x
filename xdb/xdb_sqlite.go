@@ -1,8 +1,8 @@
 package xdb
 
 import (
+	"github.com/glebarez/sqlite"
 	"github.com/xframe-go/x/contracts"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"

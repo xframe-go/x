@@ -1,6 +1,7 @@
 package app
 
 import (
+	"flag"
 	"github.com/joho/godotenv"
 	"github.com/xframe-go/x/cmd/x"
 	"github.com/xframe-go/x/configs"
@@ -23,8 +24,12 @@ type Application struct {
 }
 
 func New() *Application {
+	var envFile string
+	flag.StringVar(&envFile, "env", ".env", "env file")
+	flag.Parse()
+
 	// 加载环境变量
-	if err := godotenv.Load(".env", "config/.env"); err != nil {
+	if err := godotenv.Load(envFile); err != nil {
 		log.Fatal(err)
 	}
 

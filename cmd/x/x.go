@@ -31,6 +31,9 @@ func New(app contracts.Application) *Command {
 	})
 	cmd.root.AddCommand(makes.CreateMakeGroup(app)...)
 
+	var envFile string
+	cmd.root.PersistentFlags().StringVar(&envFile, "env", ".env", "env file")
+
 	return cmd
 }
 

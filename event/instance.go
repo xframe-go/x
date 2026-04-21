@@ -1,7 +1,7 @@
 package event
 
 import (
-	"cnb.cool/liey/liey-go/contracts"
+	"github.com/xframe-go/x/contracts"
 )
 
 var (

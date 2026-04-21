@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"cnb.cool/liey/liey-go/contracts"
+	"github.com/xframe-go/x/contracts"
 )
 
 type Bus[T any] struct {

@@ -31,7 +31,7 @@ event.Get[T]("driver") (获取事件总线实例)
 
 ```go
 import (
-    "cnb.cool/liey/liey-go/event"
+    "github.com/xframe-go/x/event"
 )
 
 func registerEvent() {
@@ -52,7 +52,7 @@ type UserCreatedEvent struct {
 ### 3. 获取事件总线
 
 ```go
-import "cnb.cool/liey/liey-go/event"
+import "github.com/xframe-go/x/event"
 
 bus := event.Get[UserCreatedEvent]("default")
 ```
@@ -84,7 +84,7 @@ bus.Publish("user.created", UserCreatedEvent{
 package config
 
 import (
-    "cnb.cool/liey/liey-go/event"
+    "github.com/xframe-go/x/event"
 )
 
 func registerEvent() {
@@ -108,7 +108,7 @@ func Register() {
 package api
 
 import (
-    "cnb.cool/liey/liey-go/event"
+    "github.com/xframe-go/x/event"
 )
 
 type UserCreatedEvent struct {
@@ -138,7 +138,7 @@ func (h *Traveler) Register(c echo.Context) error {
 package listeners
 
 import (
-    "cnb.cool/liey/liey-go/event"
+    "github.com/xframe-go/x/event"
 )
 
 func RegisterUserListeners() {
@@ -170,7 +170,7 @@ func RegisterUserListeners() {
 package custom_driver
 
 import (
-    "cnb.cool/liey/liey-go/contracts"
+    "github.com/xframe-go/x/contracts"
 )
 
 type RedisDriver struct {

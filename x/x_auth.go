@@ -1,9 +1,9 @@
-package liey
+package x
 
 import (
 	"errors"
 
-	"cnb.cool/liey/liey-go/auth"
+	"github.com/xframe-go/x/auth"
 )
 
 func RegisterAuth(fn func() auth.Config) {

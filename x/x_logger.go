@@ -1,8 +1,8 @@
-package liey
+package x
 
 import (
-	"cnb.cool/liey/liey-go/contracts"
-	"cnb.cool/liey/liey-go/logger"
+	"github.com/xframe-go/x/contracts"
+	"github.com/xframe-go/x/logger"
 )
 
 func (r *Rocket) getLogger() contracts.Logger {

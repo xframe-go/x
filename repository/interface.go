@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"cnb.cool/liey/liey-go/requests"
+	"github.com/xframe-go/x/requests"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

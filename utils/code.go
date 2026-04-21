@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"cnb.cool/liey/liey-go/snowflake"
 	"github.com/dromara/carbon/v2"
+	"github.com/xframe-go/x/snowflake"
 )
 
 var codeGenerator = snowflake.New()

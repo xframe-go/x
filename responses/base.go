@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"cnb.cool/liey/liey-go/validate"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/xframe-go/x/validate"
 	"gorm.io/gorm"
 )
 

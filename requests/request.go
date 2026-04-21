@@ -3,9 +3,9 @@ package requests
 import (
 	"strings"
 
-	"cnb.cool/liey/liey-go/validate"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cast"
+	"github.com/xframe-go/x/validate"
 )
 
 type Request struct {

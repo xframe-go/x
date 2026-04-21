@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"strings"
 
-	"cnb.cool/liey/liey-go/event"
-	"cnb.cool/liey/liey-go/liey"
+	"github.com/xframe-go/x/event"
+	"github.com/xframe-go/x/x"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +23,7 @@ type Config struct {
 
 func NewPlugin(config Config) *Plugin {
 	return &Plugin{
-		eventBus: liey.Event[interface{}](),
+		eventBus: x.Event[interface{}](),
 		config:   config,
 	}
 }

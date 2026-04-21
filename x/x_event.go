@@ -1,7 +1,7 @@
-package liey
+package x
 
 import (
-	"cnb.cool/liey/liey-go/event"
+	"github.com/xframe-go/x/event"
 )
 
 func RegisterEvent(fn func() event.Config) {

@@ -1,8 +1,8 @@
-package liey
+package x
 
 import (
-	"cnb.cool/liey/liey-go/contracts"
-	"cnb.cool/liey/liey-go/snowflake"
+	"github.com/xframe-go/x/contracts"
+	"github.com/xframe-go/x/snowflake"
 )
 
 func (r *Rocket) getIDGenerator() contracts.IdGenerator {

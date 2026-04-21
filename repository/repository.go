@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"cnb.cool/liey/liey-go/liey"
-	"cnb.cool/liey/liey-go/requests"
+	"github.com/xframe-go/x/requests"
+	"github.com/xframe-go/x/x"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -23,7 +23,7 @@ func New[M any, C ToModel[M], U ToUpdateModel, K comparable](primaryKeyGetter Pr
 
 func (repo *Repository[M, C, U, K]) List(ctx context.Context, params requests.QueryParams) (data []M, total int64, err error) {
 	var mo M
-	tx := liey.DB().WithContext(ctx).Model(mo)
+	tx := x.DB().WithContext(ctx).Model(mo)
 
 	tx = repo.attachQuery(tx, params)
 
@@ -42,7 +42,7 @@ func (repo *Repository[M, C, U, K]) List(ctx context.Context, params requests.Qu
 
 func (repo *Repository[M, C, U, K]) BatchList(ctx context.Context, params requests.QueryParams) (data []M, err error) {
 	var mo M
-	tx := liey.DB().WithContext(ctx).Model(mo)
+	tx := x.DB().WithContext(ctx).Model(mo)
 
 	tx = repo.attachQuery(tx, params)
 
@@ -57,7 +57,7 @@ func (*Repository[M, C, U, K]) Create(tx *gorm.DB, m *M) error {
 }
 
 func (repo *Repository[M, C, U, K]) Show(ctx context.Context, key K, params requests.QueryParams) (m M, err error) {
-	tx := liey.DB().WithContext(ctx).Where("id", key)
+	tx := x.DB().WithContext(ctx).Where("id", key)
 
 	repo.attachPreload(tx, params)
 
@@ -68,7 +68,7 @@ func (repo *Repository[M, C, U, K]) Show(ctx context.Context, key K, params requ
 
 func (repo *Repository[M, C, U, K]) Update(ctx context.Context, tx *gorm.DB, key K, m U) error {
 	updates := m.ToModel()
-	_, err := liey.Model[M](tx).Where(repo.primaryKeyName, key).Set(updates...).Update(ctx)
+	_, err := x.Model[M](tx).Where(repo.primaryKeyName, key).Set(updates...).Update(ctx)
 	return err
 }
 
@@ -80,7 +80,7 @@ func (repo *Repository[M, C, U, K]) Destroy(ctx context.Context, tx *gorm.DB, ke
 }
 
 func (repo *Repository[M, C, U, K]) GetByPrimaryKey(ctx context.Context, key K) (M, error) {
-	return liey.Model[M]().Where("id", key).First(ctx)
+	return x.Model[M]().Where("id", key).First(ctx)
 }
 
 func (repo *Repository[M, C, U, K]) attachQuery(tx *gorm.DB, params requests.QueryParams) *gorm.DB {

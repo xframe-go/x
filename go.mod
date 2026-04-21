@@ -1,4 +1,4 @@
-module cnb.cool/liey/liey-go
+module github.com/xframe-go/x
 
 go 1.25.0
 

@@ -1,14 +1,14 @@
-package liey
+package x
 
 import (
-	"cnb.cool/liey/liey-go/auth"
-	"cnb.cool/liey/liey-go/contracts"
-	"cnb.cool/liey/liey-go/db"
-	"cnb.cool/liey/liey-go/event"
-	"cnb.cool/liey/liey-go/server"
-	"cnb.cool/liey/liey-go/storage"
 	gocap "github.com/ackcoder/go-cap"
 	"github.com/spf13/cobra"
+	"github.com/xframe-go/x/auth"
+	"github.com/xframe-go/x/contracts"
+	"github.com/xframe-go/x/db"
+	"github.com/xframe-go/x/event"
+	"github.com/xframe-go/x/server"
+	"github.com/xframe-go/x/storage"
 )
 
 var (

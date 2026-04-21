@@ -1,8 +1,8 @@
-package liey
+package x
 
 import (
-	"cnb.cool/liey/liey-go/server"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/xframe-go/x/server"
 )
 
 func (r *Rocket) getServer() *server.EchoServer {

@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strings"
 
-	"cnb.cool/liey/liey-go/liey"
-	"cnb.cool/liey/liey-go/repository"
-	"cnb.cool/liey/liey-go/requests"
-	"cnb.cool/liey/liey-go/responses"
 	"github.com/labstack/echo/v4"
+	"github.com/xframe-go/x/repository"
+	"github.com/xframe-go/x/requests"
+	"github.com/xframe-go/x/responses"
+	"github.com/xframe-go/x/x"
 	"gorm.io/gorm"
 )
 
@@ -84,7 +84,7 @@ func (h *Handler[M, C, U, K]) Create(c echo.Context) error {
 
 	m := create.ToModel()
 
-	err := liey.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := x.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if h.opt.beforeCreate != nil {
 			if err := h.opt.beforeCreate(req, tx, &create, &m); err != nil {
 				return err
@@ -137,7 +137,7 @@ func (h *Handler[M, C, U, K]) Update(c echo.Context) error {
 		return h.Failed(c, err)
 	}
 
-	err := liey.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := x.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if h.opt.beforeUpdate != nil {
 			if err := h.opt.beforeUpdate(req, tx, &update, id); err != nil {
 				return err
@@ -175,7 +175,7 @@ func (h *Handler[M, C, U, K]) Destroy(c echo.Context) error {
 		ids = append(ids, h.opt.primaryKeyConverter(s))
 	}
 
-	err := liey.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := x.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if h.opt.beforeDestroy != nil {
 			if err := h.opt.beforeDestroy(req, tx, ids); err != nil {
 				return err

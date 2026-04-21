@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"cnb.cool/liey/liey-go/contracts"
+	"github.com/xframe-go/x/contracts"
 )
 
 type Local struct {

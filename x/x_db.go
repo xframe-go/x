@@ -1,7 +1,7 @@
-package liey
+package x
 
 import (
-	"cnb.cool/liey/liey-go/db"
+	"github.com/xframe-go/x/db"
 	"gorm.io/gorm"
 )
 

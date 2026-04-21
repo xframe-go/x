@@ -1,6 +1,6 @@
-package liey
+package x
 
-import "cnb.cool/liey/liey-go/storage"
+import "github.com/xframe-go/x/storage"
 
 func RegisterStorage(fn func() storage.Config) {
 	cfg := fn()

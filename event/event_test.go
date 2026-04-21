@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"cnb.cool/liey/liey-go/event"
+	"github.com/xframe-go/x/event"
 )
 
 type TestEvent struct {

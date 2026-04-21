@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"os"
 
-	"cnb.cool/liey/liey-go/contracts"
+	"github.com/xframe-go/x/contracts"
 )
 
 type Slog struct {

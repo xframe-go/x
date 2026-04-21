@@ -1,8 +1,8 @@
 package server
 
 import (
-	"cnb.cool/liey/liey-go/validate"
 	"github.com/labstack/echo/v4"
+	"github.com/xframe-go/x/validate"
 )
 
 type EchoServer struct {

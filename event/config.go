@@ -1,6 +1,6 @@
 package event
 
-import "cnb.cool/liey/liey-go/contracts"
+import "github.com/xframe-go/x/contracts"
 
 type Config struct {
 	Driver   contracts.EventDriver

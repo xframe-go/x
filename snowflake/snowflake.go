@@ -1,8 +1,8 @@
 package snowflake
 
 import (
-	"cnb.cool/liey/liey-go/contracts"
 	"github.com/bwmarrin/snowflake"
+	"github.com/xframe-go/x/contracts"
 )
 
 type Generator struct {

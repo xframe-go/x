@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"cnb.cool/liey/liey-go/contracts"
-	"cnb.cool/liey/liey-go/storage/drivers"
+	"github.com/xframe-go/x/contracts"
+	"github.com/xframe-go/x/storage/drivers"
 )
 
 type DiskConfig interface {

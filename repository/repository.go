@@ -76,7 +76,8 @@ func (repo *Repository[M, C, U, K]) Destroy(ctx context.Context, tx *gorm.DB, ke
 	if len(keys) == 0 {
 		return nil
 	}
-	return tx.Where("id", keys).Delete(ctx).Error
+	var m M
+	return tx.Where("id", keys).Delete(&m).Error
 }
 
 func (repo *Repository[M, C, U, K]) GetByPrimaryKey(ctx context.Context, key K) (M, error) {

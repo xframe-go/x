@@ -21,10 +21,10 @@ func NewEcho() *EchoServer {
 }
 
 func (*EchoServer) Resource(group *echo.Group, name string, handler contracts.ResourceHandler) {
-	group.GET(name, handler.List)
-	group.GET(name+"/_batch", handler.BatchList)
-	group.GET(name+"/:id", handler.Show)
-	group.POST(name, handler.Create)
-	group.PUT(name+"/:id", handler.Update)
-	group.DELETE(name+"/:id", handler.Destroy)
+	group.GET("/"+name, handler.List)
+	group.GET("/"+name+"/_batch", handler.BatchList)
+	group.GET("/"+name+"/:id", handler.Show)
+	group.POST("/"+name, handler.Create)
+	group.PUT("/"+name+"/:id", handler.Update)
+	group.DELETE("/"+name+"/:id", handler.Destroy)
 }

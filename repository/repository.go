@@ -144,13 +144,7 @@ func (repo *Repository[M, C, U, K]) attachQuery(tx *gorm.DB, params requests.Que
 	}
 
 	if len(params.Keyword) > 0 && repo.options.keywordExpression != nil {
-		expr := repo.options.keywordExpression(params.Keyword)
-
-		match := tx.WithContext(context.Background())
-		for _, e := range expr {
-			match = match.Or(e)
-		}
-		tx.Where(match)
+		tx = repo.options.keywordExpression(tx, params.Keyword)
 	}
 
 	return tx

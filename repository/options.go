@@ -1,14 +1,16 @@
 package repository
 
-import "gorm.io/gorm/clause"
+import (
+	"gorm.io/gorm"
+)
 
 type options struct {
-	keywordExpression func(keyword string) []clause.Expression
+	keywordExpression func(tx *gorm.DB, keyword string) *gorm.DB
 }
 
 type OptionFn func(*options)
 
-func WithKeywordExpression(keywordExp func(keyword string) []clause.Expression) OptionFn {
+func WithKeywordExpression(keywordExp func(tx *gorm.DB, keyword string) *gorm.DB) OptionFn {
 	return func(opts *options) {
 		opts.keywordExpression = keywordExp
 	}

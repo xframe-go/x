@@ -143,7 +143,7 @@ func (repo *Repository[M, C, U, K]) attachQuery(tx *gorm.DB, params requests.Que
 		}
 	}
 
-	if len(params.Keyword) > 0 {
+	if len(params.Keyword) > 0 && repo.options.keywordExpression != nil {
 		tx.Where(repo.options.keywordExpression(params.Keyword))
 	}
 

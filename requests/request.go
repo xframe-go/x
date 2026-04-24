@@ -33,6 +33,7 @@ func ParseQueryParams(ctx echo.Context) QueryParams {
 	}
 
 	qp := QueryParams{
+		Keyword:  ctx.QueryParam("_keyword"),
 		Filters:  filters,
 		Page:     page,
 		PageSize: pageSize,

@@ -1,6 +1,7 @@
 package requests
 
 type QueryParams struct {
+	Keyword  string            `json:"keyword"`
 	Filters  Filters           `json:"filters"`
 	Sorter   map[string]string `json:"sorter"`
 	Preload  []string          `json:"preload"`

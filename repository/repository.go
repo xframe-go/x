@@ -10,12 +10,23 @@ import (
 )
 
 type Repository[M any, C ToModel[M], U ToUpdateModel, K comparable] struct {
+	options          *options
 	primaryKeyName   string
 	primaryKeyGetter PrimaryKeyGetter[M, K]
 }
 
-func New[M any, C ToModel[M], U ToUpdateModel, K comparable](primaryKeyGetter PrimaryKeyGetter[M, K]) *Repository[M, C, U, K] {
+func New[M any, C ToModel[M], U ToUpdateModel, K comparable](
+	primaryKeyGetter PrimaryKeyGetter[M, K],
+	optionSetter ...OptionFn,
+) *Repository[M, C, U, K] {
+	opts := &options{}
+
+	for _, fn := range optionSetter {
+		fn(opts)
+	}
+
 	return &Repository[M, C, U, K]{
+		options:          opts,
 		primaryKeyName:   "id",
 		primaryKeyGetter: primaryKeyGetter,
 	}
@@ -130,6 +141,10 @@ func (repo *Repository[M, C, U, K]) attachQuery(tx *gorm.DB, params requests.Que
 				tx = tx.Where(filter.Field+" BETWEEN ? AND ?", values[0], values[1])
 			}
 		}
+	}
+
+	if len(params.Keyword) > 0 {
+		tx.Where(repo.options.keywordExpression(params.Keyword))
 	}
 
 	return tx

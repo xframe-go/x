@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/xframe-go/x/x"
 )
 
 type Context struct {
@@ -18,4 +19,8 @@ func (ctx *Context) Validated(pointer any) error {
 	}
 
 	return ctx.Validate(pointer)
+}
+
+func (ctx *Context) AuthUserId() (string, error) {
+	return x.Auth().GetUserId(ctx.Context)
 }

@@ -19,8 +19,8 @@ func RegisterDB(fn func() db.Config) {
 		panic(err)
 	}
 
-	if cfg.EventBus != nil {
-		plugin := event.NewPlugin(cfg.EventBus, event.GormPluginConfig{
+	if rocket.bus != nil {
+		plugin := event.NewPlugin(rocket.bus, event.GormPluginConfig{
 			PublishCreated: true,
 			PublishUpdated: true,
 			PublishDeleted: true,

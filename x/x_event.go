@@ -2,6 +2,7 @@ package x
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/xframe-go/x/event"
 )
@@ -38,7 +39,7 @@ func extraTopicName(model interface{}) string {
 	}
 
 	typeName := "liey." + modelType.Name()
-	return typeName
+	return strings.ToLower(typeName)
 }
 
 func Subscribe[M any](topic string, fn func(M)) error {

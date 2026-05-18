@@ -14,7 +14,7 @@ type IObserver[M any] struct {
 }
 
 type ModelEventObserver[M any] interface {
-	Created(m M) error
-	Updated(m M) error
-	Deleted(m M) error
+	Created(m *Observer[M]) error
+	Updated(m *Observer[M]) error
+	Deleted(m *Observer[M]) error
 }

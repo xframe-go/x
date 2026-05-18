@@ -61,8 +61,11 @@ func Publish[M any](topic string, data M) error {
 func Observer[M any](m M, o event.ModelEventObserver[M]) error {
 	topic := extraTopicName(m)
 
-	err := Subscribe(topic+".created", func(a M) {
-		if err := o.Created(a); err != nil {
+	err := Subscribe[event.ModelCreatedEvent](topic+".created", func(a event.ModelCreatedEvent) {
+		if err := o.Created(&event.Observer[M]{
+			TX:    a.TX,
+			Model: a.Model.(*M),
+		}); err != nil {
 			Logger().Error(err)
 		}
 	})
@@ -70,8 +73,12 @@ func Observer[M any](m M, o event.ModelEventObserver[M]) error {
 		return err
 	}
 
-	err = Subscribe(topic+".updated", func(a M) {
-		if err := o.Updated(a); err != nil {
+	err = Subscribe[event.ModelUpdatedEvent](topic+".updated", func(a event.ModelUpdatedEvent) {
+		origin := a.Origin.(M)
+		if err := o.Updated(&event.Observer[M]{
+			Model:  a.Model.(*M),
+			Origin: &origin,
+		}); err != nil {
 			Logger().Error(err)
 		}
 	})
@@ -80,7 +87,9 @@ func Observer[M any](m M, o event.ModelEventObserver[M]) error {
 	}
 
 	err = Subscribe(topic+".deleted", func(a M) {
-		if err := o.Deleted(a); err != nil {
+		if err := o.Deleted(&event.Observer[M]{
+			Model: &a,
+		}); err != nil {
 			Logger().Error(err)
 		}
 	})

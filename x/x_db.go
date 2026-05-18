@@ -2,7 +2,6 @@ package x
 
 import (
 	"github.com/xframe-go/x/db"
-	"github.com/xframe-go/x/event"
 	"gorm.io/gorm"
 )
 
@@ -19,23 +18,23 @@ func RegisterDB(fn func() db.Config) {
 		panic(err)
 	}
 
-	if rocket.bus != nil {
-		plugin := event.NewPlugin(rocket.bus, event.GormPluginConfig{
-			PublishCreated: true,
-			PublishUpdated: true,
-			PublishDeleted: true,
-			Prefix:         "liey",
-		})
-		for name := range cfg.Databases {
-			instance, err := rocket.db.DB(name)
-			if err != nil {
-				return
-			}
-			if err = instance.Use(plugin); err != nil {
-				panic(err)
-			}
-		}
-	}
+	//if rocket.bus != nil {
+	//	plugin := event.NewPlugin(rocket.bus, event.GormPluginConfig{
+	//		PublishCreated: true,
+	//		PublishUpdated: true,
+	//		PublishDeleted: true,
+	//		Prefix:         "liey",
+	//	})
+	//	for name := range cfg.Databases {
+	//		instance, err := rocket.db.DB(name)
+	//		if err != nil {
+	//			return
+	//		}
+	//		if err = instance.Use(plugin); err != nil {
+	//			panic(err)
+	//		}
+	//	}
+	//}
 }
 
 func DB(conn ...string) *gorm.DB {

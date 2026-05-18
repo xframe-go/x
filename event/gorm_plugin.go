@@ -57,6 +57,11 @@ func (p *Plugin) Initialize(db *gorm.DB) error {
 	return nil
 }
 
+type ModelCreatedEvent struct {
+	TX    *gorm.DB
+	Model any
+}
+
 func (p *Plugin) publishCreated(db *gorm.DB) {
 	model := p.extractModel(db)
 	if model == nil {
@@ -64,26 +69,30 @@ func (p *Plugin) publishCreated(db *gorm.DB) {
 	}
 
 	eventType := p.getEventType(model, "created")
-	p.eventBus.Publish(eventType, map[string]interface{}{
-		"action": "created",
-		"model":  model,
+
+	p.eventBus.Publish(eventType, ModelCreatedEvent{
+		Model: model,
 	})
 }
 
+type ModelUpdatedEvent struct {
+	Model  any
+	Origin any
+}
+
 func (p *Plugin) publishUpdated(db *gorm.DB) {
-	newModel := p.extractModel(db)
-	if newModel == nil {
-		return
-	}
-
-	oldModel := db.Statement.ReflectValue
-
-	eventType := p.getEventType(newModel, "updated")
-	p.eventBus.Publish(eventType, map[string]interface{}{
-		"action":   "updated",
-		"model":    newModel,
-		"oldModel": oldModel,
-	})
+	//newModel := p.extractModel(db)
+	//if newModel == nil {
+	//	return
+	//}
+	//
+	//oldModel := db.Statement.ReflectValue.Interface()
+	//
+	//eventType := p.getEventType(oldModel, "updated")
+	//p.eventBus.Publish(eventType, ModelUpdatedEvent{
+	//	Model:  newModel,
+	//	Origin: oldModel,
+	//})
 }
 
 func (p *Plugin) publishDeleted(db *gorm.DB) {
@@ -93,13 +102,12 @@ func (p *Plugin) publishDeleted(db *gorm.DB) {
 	}
 
 	eventType := p.getEventType(model, "deleted")
-	p.eventBus.Publish(eventType, map[string]interface{}{
-		"action": "deleted",
-		"model":  model,
-	})
+	if err := p.eventBus.Publish(eventType, model); err != nil {
+		return
+	}
 }
 
-func (p *Plugin) extractModel(db *gorm.DB) interface{} {
+func (p *Plugin) extractModel(db *gorm.DB) any {
 	if db.Statement.Dest != nil {
 		return db.Statement.Dest
 	}
@@ -115,7 +123,7 @@ func (p *Plugin) extractModel(db *gorm.DB) interface{} {
 	return nil
 }
 
-func (p *Plugin) getEventType(model interface{}, action string) string {
+func (p *Plugin) getEventType(model any, action string) string {
 	modelType := reflect.TypeOf(model)
 	if modelType.Kind() == reflect.Ptr {
 		modelType = modelType.Elem()

@@ -1,23 +1,18 @@
 package x
 
 import (
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/xframe-go/x/server"
 )
 
-func (r *Rocket) getServer() *server.EchoServer {
-	if r.server != nil {
-		return r.server
-	}
-
-	r.server = server.NewEcho()
-
-	r.server.Use(middleware.RequestLogger())
-	r.server.Use(middleware.Recover())
-	r.server.Use(middleware.CORS())
-	return r.server
+func Server() *server.EchoServer {
+	return rocket.server
 }
 
-func Server() *server.EchoServer {
-	return rocket.getServer()
+func RegisterServer(fn func() server.Config) {
+	cfg := fn()
+	rocket.server = server.NewEcho(cfg)
+	rocket.server.Use(middleware.RequestLogger())
+	rocket.server.Use(middleware.Recover())
+	rocket.server.Use(middleware.CORS("*"))
 }

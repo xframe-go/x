@@ -24,10 +24,10 @@ func Register(driver contracts.EventDriver) {
 	instance.driver = driver
 }
 
-func Get[T any]() *Bus {
+func Get() *Bus {
 	if instance == nil || instance.driver == nil {
 		panic("event bus not initialized")
 	}
 
-	return NewBus[T](instance.driver)
+	return NewBus(instance.driver)
 }

@@ -42,11 +42,7 @@ func ExampleNewBus() {
 	driver := NewChannelDriver()
 	defer driver.Close()
 
-	bus := NewBus[UserCreatedEvent](driver)
-
-	bus.Subscribe("user.created", func(event UserCreatedEvent) {
-		fmt.Printf("User created: %s (%s)\n", event.Username, event.Email)
-	})
+	bus := NewBus(driver)
 
 	bus.Publish("user.created", UserCreatedEvent{
 		UserID:   1,
@@ -61,7 +57,7 @@ func ExampleNewBus_multipleTopics() {
 	driver := NewChannelDriver()
 	defer driver.Close()
 
-	bus := NewBus[interface{}](driver)
+	bus := NewBus(driver)
 
 	bus.Subscribe("user.created", func(event interface{}) {
 		if userEvent, ok := event.(UserCreatedEvent); ok {
@@ -95,12 +91,12 @@ func ExampleNewBus_concurrent() {
 	driver := NewChannelDriver()
 	defer driver.Close()
 
-	bus := NewBus[UserCreatedEvent](driver)
+	bus := NewBus(driver)
 
 	count := 0
 	for i := 0; i < 10; i++ {
-		bus.Subscribe("user.created", func(event UserCreatedEvent) {
-			fmt.Printf("Handler %d received user: %s\n", count, event.Username)
+		bus.Subscribe("user.created", func(event any) {
+			fmt.Printf("Handler %d received user: %s\n", count, event)
 			count++
 		})
 	}

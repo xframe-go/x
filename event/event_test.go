@@ -114,7 +114,7 @@ func TestEventBus_SubscribePublish(t *testing.T) {
 	driver := NewMockDriver()
 	defer driver.Close()
 
-	bus := event.NewBus[TestEvent](driver)
+	bus := event.NewBus(driver)
 
 	received := false
 	err := bus.Subscribe("test-topic", func(event TestEvent) {
@@ -139,7 +139,7 @@ func TestEventBus_MultipleHandlers(t *testing.T) {
 	driver := NewMockDriver()
 	defer driver.Close()
 
-	bus := event.NewBus[TestEvent](driver)
+	bus := event.NewBus(driver)
 
 	count := 0
 
@@ -166,7 +166,7 @@ func TestEventBus_DifferentTopics(t *testing.T) {
 	driver := NewMockDriver()
 	defer driver.Close()
 
-	bus := event.NewBus[TestEvent](driver)
+	bus := event.NewBus(driver)
 
 	topic1Received := false
 	topic2Received := false

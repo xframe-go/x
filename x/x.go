@@ -9,6 +9,7 @@ import (
 	"github.com/xframe-go/x/event"
 	"github.com/xframe-go/x/server"
 	"github.com/xframe-go/x/storage"
+	"github.com/zeromicro/go-zero/core/proc"
 )
 
 var (
@@ -33,6 +34,8 @@ type Rocket struct {
 	bus *event.Bus
 
 	db *db.DB
+
+	shutdown []func()
 }
 
 func New() *Rocket {
@@ -45,4 +48,14 @@ func New() *Rocket {
 	rocket.createRootCommand()
 
 	return rocket
+}
+
+func AddShutdownListener(listener func()) {
+	rocket.shutdown = append(rocket.shutdown, proc.AddShutdownListener(listener))
+}
+
+func Wait() {
+	for _, waiter := range rocket.shutdown {
+		waiter()
+	}
 }

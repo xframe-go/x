@@ -2,7 +2,6 @@ package x
 
 import (
 	"reflect"
-	"sync"
 
 	"github.com/xframe-go/x/event"
 )
@@ -42,18 +41,20 @@ func extraTopicName(model interface{}) string {
 	return typeName
 }
 
-var Events = sync.OnceValue(func() *event.Bus[any] {
-	return event.NewBus[any](event.NewChannelDriver())
-})
-
 func Subscribe[M any](topic string, fn func(M)) error {
-	return Events().Subscribe(topic, func(a any) {
+	if rocket.bus == nil {
+		panic("rocket bus is nil")
+	}
+	return rocket.bus.Subscribe(topic, func(a any) {
 		fn(a.(M))
 	})
 }
 
 func Publish[M any](topic string, data M) error {
-	return Events().Publish(topic, data)
+	if rocket.bus == nil {
+		panic("rocket bus is nil")
+	}
+	return rocket.bus.Publish(topic, data)
 }
 
 func Observer[M any](m M, o event.ModelEventObserver[M]) error {

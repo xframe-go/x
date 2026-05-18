@@ -19,19 +19,21 @@ func RegisterDB(fn func() db.Config) {
 		panic(err)
 	}
 
-	plugin := event.NewPlugin(rocket.bus, event.GormPluginConfig{
-		PublishCreated: true,
-		PublishUpdated: true,
-		PublishDeleted: true,
-		Prefix:         "liey",
-	})
-	for name := range cfg.Databases {
-		instance, err := rocket.db.DB(name)
-		if err != nil {
-			return
-		}
-		if err = instance.Use(plugin); err != nil {
-			panic(err)
+	if cfg.EventBus != nil {
+		plugin := event.NewPlugin(cfg.EventBus, event.GormPluginConfig{
+			PublishCreated: true,
+			PublishUpdated: true,
+			PublishDeleted: true,
+			Prefix:         "liey",
+		})
+		for name := range cfg.Databases {
+			instance, err := rocket.db.DB(name)
+			if err != nil {
+				return
+			}
+			if err = instance.Use(plugin); err != nil {
+				panic(err)
+			}
 		}
 	}
 }

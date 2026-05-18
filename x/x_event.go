@@ -14,7 +14,7 @@ func RegisterEvent(fn func() event.Config) {
 	}
 
 	if rocket.bus == nil {
-		rocket.bus = event.NewBus[any](cfg.Driver)
+		rocket.bus = event.NewBus(cfg.Driver)
 	}
 
 	for _, handler := range cfg.Handlers {

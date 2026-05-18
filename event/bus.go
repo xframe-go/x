@@ -7,20 +7,20 @@ import (
 	"github.com/xframe-go/x/contracts"
 )
 
-type Bus[T any] struct {
+type Bus struct {
 	driver contracts.EventDriver
-	subs   map[string][]func(T)
+	subs   map[string][]func(any)
 	mu     sync.RWMutex
 	ctx    context.Context
 	cancel context.CancelFunc
 }
 
-func NewBus[T any](driver contracts.EventDriver) *Bus[T] {
+func NewBus(driver contracts.EventDriver) *Bus {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	bus := &Bus[T]{
+	bus := &Bus{
 		driver: driver,
-		subs:   make(map[string][]func(T)),
+		subs:   make(map[string][]func(any)),
 		ctx:    ctx,
 		cancel: cancel,
 	}
@@ -28,7 +28,7 @@ func NewBus[T any](driver contracts.EventDriver) *Bus[T] {
 	return bus
 }
 
-func (b *Bus[T]) Subscribe(topic string, handler func(T)) error {
+func (b *Bus) Subscribe(topic string, handler func(any)) error {
 	b.mu.Lock()
 	b.subs[topic] = append(b.subs[topic], handler)
 	b.mu.Unlock()
@@ -42,16 +42,16 @@ func (b *Bus[T]) Subscribe(topic string, handler func(T)) error {
 	return nil
 }
 
-func (b *Bus[T]) Publish(topic string, data T) error {
+func (b *Bus) Publish(topic string, data any) error {
 	return b.driver.Publish(topic, data)
 }
 
-func (b *Bus[T]) Close() error {
+func (b *Bus) Close() error {
 	b.cancel()
 	return b.driver.Close()
 }
 
-func (b *Bus[T]) consume(topic string, ch <-chan interface{}) {
+func (b *Bus) consume(topic string, ch <-chan interface{}) {
 	for {
 		select {
 		case <-b.ctx.Done():
@@ -66,9 +66,7 @@ func (b *Bus[T]) consume(topic string, ch <-chan interface{}) {
 			b.mu.RUnlock()
 
 			for _, handler := range handlers {
-				if event, ok := data.(T); ok {
-					handler(event)
-				}
+				handler(data)
 			}
 		}
 	}

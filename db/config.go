@@ -1,6 +1,10 @@
 package db
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/xframe-go/x/event"
+)
 
 type (
 	WithConnection interface {
@@ -9,6 +13,7 @@ type (
 
 	Config struct {
 		Databases map[string]DriverConf
+		EventBus  *event.Bus
 	}
 
 	DriverConf struct {

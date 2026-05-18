@@ -8,7 +8,7 @@ import (
 )
 
 type Plugin struct {
-	eventBus *Bus[interface{}]
+	eventBus *Bus
 	config   GormPluginConfig
 }
 
@@ -19,7 +19,7 @@ type GormPluginConfig struct {
 	Prefix         string
 }
 
-func NewPlugin(bus *Bus[any], config GormPluginConfig) *Plugin {
+func NewPlugin(bus *Bus, config GormPluginConfig) *Plugin {
 	return &Plugin{
 		eventBus: bus,
 		config:   config,

@@ -30,7 +30,7 @@ type Rocket struct {
 
 	storage *storage.Manager
 
-	bus *event.Bus[any]
+	bus *event.Bus
 
 	db *db.DB
 }

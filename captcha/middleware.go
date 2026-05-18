@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	gocap "github.com/ackcoder/go-cap"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type Body struct {
@@ -13,15 +13,15 @@ type Body struct {
 
 func Middleware(cap *gocap.Cap) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			captcha := c.Request().Header.Get("X-Secret")
 			if len(captcha) == 0 {
-				return c.JSON(http.StatusForbidden, echo.Map{"message": "服务器繁忙，等会儿再试试！"})
+				return c.JSON(http.StatusForbidden, map[string]string{"message": "服务器繁忙，等会儿再试试！"})
 			}
 
 			ok := cap.ValidateToken(c.Request().Context(), captcha)
 			if !ok {
-				return c.JSON(http.StatusForbidden, echo.Map{"message": "服务器繁忙，等会儿再试试！"})
+				return c.JSON(http.StatusForbidden, map[string]string{"message": "服务器繁忙，等会儿再试试！"})
 			}
 			return next(c)
 		}

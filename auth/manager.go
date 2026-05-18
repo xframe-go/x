@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type Manager struct {
@@ -50,7 +50,7 @@ func (m *Manager) ParseToken(tokenString string) (*Claims, error) {
 	return nil, jwt.ErrSignatureInvalid
 }
 
-func (m *Manager) GetUserId(c echo.Context) (string, error) {
+func (m *Manager) GetUserId(c *echo.Context) (string, error) {
 	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return "", nil
@@ -58,7 +58,7 @@ func (m *Manager) GetUserId(c echo.Context) (string, error) {
 	return userID, nil
 }
 
-func (m *Manager) getToken(c echo.Context) (string, error) {
+func (m *Manager) getToken(c *echo.Context) (string, error) {
 	cookie, err := c.Cookie("token")
 	if err == nil && cookie != nil {
 		token := cookie.Value

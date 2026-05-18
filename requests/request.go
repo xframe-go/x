@@ -3,7 +3,7 @@ package requests
 import (
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/spf13/cast"
 	"github.com/xframe-go/x/validate"
 )
@@ -11,15 +11,15 @@ import (
 type Request struct {
 }
 
-func (Request) Validated(ctx echo.Context, pointer any) error {
-	if err := (&echo.DefaultBinder{}).BindBody(ctx, &pointer); err != nil {
+func (Request) Validated(ctx *echo.Context, pointer any) error {
+	if err := ctx.Bind(&pointer); err != nil {
 		return err
 	}
 
 	return validate.Validated(pointer)
 }
 
-func ParseQueryParams(ctx echo.Context) QueryParams {
+func ParseQueryParams(ctx *echo.Context) QueryParams {
 	filters := parseFilters(ctx)
 
 	page := cast.ToInt(ctx.QueryParam("page"))
@@ -46,7 +46,7 @@ func ParseQueryParams(ctx echo.Context) QueryParams {
 	return qp
 }
 
-func parseFilters(ctx echo.Context) []Filter {
+func parseFilters(ctx *echo.Context) []Filter {
 	var filters []Filter
 	params := ctx.QueryParams()
 

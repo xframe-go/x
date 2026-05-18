@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func JWTMiddleware(authManager *Manager) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			token, err := getToken(c)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -32,7 +32,7 @@ func JWTMiddleware(authManager *Manager) echo.MiddlewareFunc {
 	}
 }
 
-func GetUserID(c echo.Context) string {
+func GetUserID(c *echo.Context) string {
 	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return ""
@@ -40,7 +40,7 @@ func GetUserID(c echo.Context) string {
 	return userID
 }
 
-func getToken(c echo.Context) (string, error) {
+func getToken(c *echo.Context) (string, error) {
 	cookie, err := c.Cookie("token")
 	if err == nil && cookie != nil {
 		token := cookie.Value

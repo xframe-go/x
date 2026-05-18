@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/xframe-go/x/validate"
 	"gorm.io/gorm"
 )
@@ -13,15 +13,15 @@ import (
 type Base struct {
 }
 
-func (Base) Success(ctx echo.Context, data any) error {
+func (Base) Success(ctx *echo.Context, data any) error {
 	return ctx.JSON(http.StatusOK, data)
 }
 
-func (Base) Created(ctx echo.Context, data any) error {
+func (Base) Created(ctx *echo.Context, data any) error {
 	return ctx.JSON(http.StatusCreated, data)
 }
 
-func (Base) Failed(ctx echo.Context, err error) error {
+func (Base) Failed(ctx *echo.Context, err error) error {
 	var (
 		msg  = err.Error()
 		code = http.StatusBadRequest
@@ -42,15 +42,15 @@ func (Base) Failed(ctx echo.Context, err error) error {
 	})
 }
 
-func (Base) Empty(ctx echo.Context) error {
+func (Base) Empty(ctx *echo.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
 type SSE struct {
-	*echo.Response
+	Response http.ResponseWriter
 }
 
-func NewSSE(c echo.Context) *SSE {
+func NewSSE(c *echo.Context) *SSE {
 	w := c.Response()
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -69,10 +69,9 @@ func (s *SSE) Send(data []byte) error {
 		return err
 	}
 
-	s.Response.Flush()
-	return nil
+	return http.NewResponseController(s.Response).Flush()
 }
 
-func (Base) SSE(ctx echo.Context) *SSE {
+func (Base) SSE(ctx *echo.Context) *SSE {
 	return NewSSE(ctx)
 }

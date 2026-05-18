@@ -2,6 +2,7 @@ package x
 
 import (
 	"github.com/xframe-go/x/db"
+	"github.com/xframe-go/x/event"
 	"gorm.io/gorm"
 )
 
@@ -24,6 +25,17 @@ func DB(conn ...string) *gorm.DB {
 	if err != nil {
 		Logger().Error(err)
 		return nil
+	}
+
+	plugin := event.NewPlugin(rocket.bus, event.GormPluginConfig{
+		PublishCreated: true,
+		PublishUpdated: true,
+		PublishDeleted: true,
+		Prefix:         "liey",
+	})
+
+	if err = instance.Use(plugin); err != nil {
+		panic(err)
 	}
 	return instance
 }

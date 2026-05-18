@@ -3,6 +3,18 @@ package event
 import "github.com/xframe-go/x/contracts"
 
 type Config struct {
-	Driver   contracts.EventDriver
-	Handlers []Handler
+	Driver    contracts.EventDriver
+	Handlers  []Handler
+	Observers []IObserver[any]
+}
+
+type IObserver[M any] struct {
+	Model    M
+	Observer ModelEventObserver[M]
+}
+
+type ModelEventObserver[M any] interface {
+	Created(m M) error
+	Updated(m M) error
+	Deleted(m M) error
 }

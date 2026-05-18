@@ -9,17 +9,17 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type Repository[M any, C ToModel[M], U ToUpdateModel, K comparable] struct {
-	options          *options
+type Repository[M any, C ToModel[M], U ToModel[M], K comparable] struct {
+	options          *options[M, C, U, K]
 	primaryKeyName   string
 	primaryKeyGetter PrimaryKeyGetter[M, K]
 }
 
-func New[M any, C ToModel[M], U ToUpdateModel, K comparable](
+func New[M any, C ToModel[M], U ToModel[M], K comparable](
 	primaryKeyGetter PrimaryKeyGetter[M, K],
-	optionSetter ...OptionFn,
+	optionSetter ...OptionFn[M, C, U, K],
 ) *Repository[M, C, U, K] {
-	opts := &options{}
+	opts := &options[M, C, U, K]{}
 
 	for _, fn := range optionSetter {
 		fn(opts)
@@ -63,8 +63,18 @@ func (repo *Repository[M, C, U, K]) BatchList(ctx context.Context, params reques
 	return data, nil
 }
 
-func (*Repository[M, C, U, K]) Create(tx *gorm.DB, m *M) error {
-	return tx.Create(m).Error
+func (repo *Repository[M, C, U, K]) Create(ctx context.Context, tx *gorm.DB, m *M) error {
+	if err := tx.Create(m).Error; err != nil {
+		return err
+	}
+
+	if repo.options.CreatedHook != nil {
+		if err := repo.options.CreatedHook(ctx, tx, m); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (repo *Repository[M, C, U, K]) Show(ctx context.Context, key K, params requests.QueryParams) (m M, err error) {
@@ -77,18 +87,65 @@ func (repo *Repository[M, C, U, K]) Show(ctx context.Context, key K, params requ
 	return
 }
 
-func (repo *Repository[M, C, U, K]) Update(ctx context.Context, tx *gorm.DB, key K, m U) error {
-	updates := m.ToModel()
-	_, err := x.Model[M](tx).Where(repo.primaryKeyName, key).Set(updates...).Update(ctx)
-	return err
+func (repo *Repository[M, C, U, K]) Update(ctx context.Context, tx *gorm.DB, key K, m M) error {
+	_, err := x.Model[M](tx).Where(repo.primaryKeyName, key).Updates(ctx, m)
+	if err != nil {
+		return err
+	}
+
+	if repo.options.UpdatedHook != nil {
+		return repo.options.UpdatedHook(ctx, tx, key, m)
+	}
+	return nil
+}
+
+func (repo *Repository[M, C, U, K]) BatchUpdate(ctx context.Context, tx *gorm.DB, conditions []clause.Expression, updates []clause.Assigner) error {
+	_, err := x.Model[M](tx).Where(conditions).Set(updates...).Update(ctx)
+	if err != nil {
+		return err
+	}
+
+	if repo.options.UpdatedHook != nil {
+		mos, err := x.Model[M](tx).Where(conditions).Find(ctx)
+		if err != nil {
+			return err
+		}
+
+		for i := range mos {
+			mo := mos[i]
+			if err = repo.options.UpdatedHook(ctx, tx, repo.primaryKeyGetter(mo), mo); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (repo *Repository[M, C, U, K]) Destroy(ctx context.Context, tx *gorm.DB, keys ...K) error {
 	if len(keys) == 0 {
 		return nil
 	}
+
+	mos, err := x.Model[M](tx).Where(repo.primaryKeyName, keys).Find(ctx)
+	if err != nil {
+		return err
+	}
+	if len(mos) == 0 {
+		return nil
+	}
+
 	var m M
-	return tx.Where("id", keys).Delete(&m).Error
+	if err := tx.Where("id", keys).Delete(&m).Error; err != nil {
+		return err
+	}
+
+	if repo.options.DeletedHook != nil {
+		if err := repo.options.DeletedHook(ctx, tx, mos, keys...); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (repo *Repository[M, C, U, K]) GetByPrimaryKey(ctx context.Context, key K) (M, error) {

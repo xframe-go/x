@@ -1,20 +1,20 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/xframe-go/x/x"
 )
 
 type Context struct {
-	echo.Context
+	*echo.Context
 }
 
-func NewContext(c echo.Context) *Context {
+func NewContext(c *echo.Context) *Context {
 	return &Context{c}
 }
 
 func (ctx *Context) Validated(pointer any) error {
-	if err := (&echo.DefaultBinder{}).BindBody(ctx, &pointer); err != nil {
+	if err := ctx.Bind(&pointer); err != nil {
 		return err
 	}
 

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type Interface[M any, C ToModel[M], U ToModel[M], K comparable] interface {
+type Interface[M any, K comparable] interface {
 	List(ctx context.Context, params requests.QueryParams) (data []M, total int64, err error)
 	BatchList(ctx context.Context, params requests.QueryParams) (data []M, err error)
 	Create(ctx context.Context, tx *gorm.DB, m *M) error

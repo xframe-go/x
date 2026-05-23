@@ -9,30 +9,30 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type Repository[M any, C ToModel[M], U ToModel[M], K comparable] struct {
-	options          *options[M, C, U, K]
+type Repository[M any, K comparable] struct {
+	options          *options[M, K]
 	primaryKeyName   string
 	primaryKeyGetter PrimaryKeyGetter[M, K]
 }
 
-func New[M any, C ToModel[M], U ToModel[M], K comparable](
+func New[M any, K comparable](
 	primaryKeyGetter PrimaryKeyGetter[M, K],
-	optionSetter ...OptionFn[M, C, U, K],
-) *Repository[M, C, U, K] {
-	opts := &options[M, C, U, K]{}
+	optionSetter ...OptionFn[M, K],
+) *Repository[M, K] {
+	opts := &options[M, K]{}
 
 	for _, fn := range optionSetter {
 		fn(opts)
 	}
 
-	return &Repository[M, C, U, K]{
+	return &Repository[M, K]{
 		options:          opts,
 		primaryKeyName:   "id",
 		primaryKeyGetter: primaryKeyGetter,
 	}
 }
 
-func (repo *Repository[M, C, U, K]) List(ctx context.Context, params requests.QueryParams) (data []M, total int64, err error) {
+func (repo *Repository[M, K]) List(ctx context.Context, params requests.QueryParams) (data []M, total int64, err error) {
 	var mo M
 	tx := x.DB().WithContext(ctx).Model(mo)
 
@@ -51,7 +51,7 @@ func (repo *Repository[M, C, U, K]) List(ctx context.Context, params requests.Qu
 	return data, total, nil
 }
 
-func (repo *Repository[M, C, U, K]) BatchList(ctx context.Context, params requests.QueryParams) (data []M, err error) {
+func (repo *Repository[M, K]) BatchList(ctx context.Context, params requests.QueryParams) (data []M, err error) {
 	var mo M
 	tx := x.DB().WithContext(ctx).Model(mo)
 
@@ -63,7 +63,7 @@ func (repo *Repository[M, C, U, K]) BatchList(ctx context.Context, params reques
 	return data, nil
 }
 
-func (repo *Repository[M, C, U, K]) Create(ctx context.Context, tx *gorm.DB, m *M) error {
+func (repo *Repository[M, K]) Create(ctx context.Context, tx *gorm.DB, m *M) error {
 	if err := tx.Create(m).Error; err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (repo *Repository[M, C, U, K]) Create(ctx context.Context, tx *gorm.DB, m *
 	return nil
 }
 
-func (repo *Repository[M, C, U, K]) Show(ctx context.Context, key K, params requests.QueryParams) (m M, err error) {
+func (repo *Repository[M, K]) Show(ctx context.Context, key K, params requests.QueryParams) (m M, err error) {
 	tx := x.DB().WithContext(ctx).Where("id", key)
 
 	repo.attachPreload(tx, params)
@@ -87,7 +87,7 @@ func (repo *Repository[M, C, U, K]) Show(ctx context.Context, key K, params requ
 	return
 }
 
-func (repo *Repository[M, C, U, K]) Update(ctx context.Context, tx *gorm.DB, key K, m M) error {
+func (repo *Repository[M, K]) Update(ctx context.Context, tx *gorm.DB, key K, m M) error {
 	_, err := x.Model[M](tx).Where(repo.primaryKeyName, key).Updates(ctx, m)
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func (repo *Repository[M, C, U, K]) Update(ctx context.Context, tx *gorm.DB, key
 	return nil
 }
 
-func (repo *Repository[M, C, U, K]) BatchUpdate(ctx context.Context, tx *gorm.DB, conditions []clause.Expression, updates []clause.Assigner) error {
+func (repo *Repository[M, K]) BatchUpdate(ctx context.Context, tx *gorm.DB, conditions []clause.Expression, updates []clause.Assigner) error {
 	_, err := x.Model[M](tx).Where(conditions).Set(updates...).Update(ctx)
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (repo *Repository[M, C, U, K]) BatchUpdate(ctx context.Context, tx *gorm.DB
 	return nil
 }
 
-func (repo *Repository[M, C, U, K]) Destroy(ctx context.Context, tx *gorm.DB, keys ...K) error {
+func (repo *Repository[M, K]) Destroy(ctx context.Context, tx *gorm.DB, keys ...K) error {
 	if len(keys) == 0 {
 		return nil
 	}
@@ -148,11 +148,11 @@ func (repo *Repository[M, C, U, K]) Destroy(ctx context.Context, tx *gorm.DB, ke
 	return nil
 }
 
-func (repo *Repository[M, C, U, K]) GetByPrimaryKey(ctx context.Context, key K) (M, error) {
+func (repo *Repository[M, K]) GetByPrimaryKey(ctx context.Context, key K) (M, error) {
 	return x.Model[M]().Where("id", key).First(ctx)
 }
 
-func (repo *Repository[M, C, U, K]) attachQuery(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
+func (repo *Repository[M, K]) attachQuery(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
 	for fe, sorter := range params.Sorter {
 		tx = tx.Order(clause.OrderByColumn{
 			Column: clause.Column{
@@ -204,17 +204,21 @@ func (repo *Repository[M, C, U, K]) attachQuery(tx *gorm.DB, params requests.Que
 		tx = repo.options.keywordExpression(tx, params.Keyword)
 	}
 
+	if len(repo.options.conditions) > 0 {
+		tx = tx.Where(repo.options.conditions)
+	}
+
 	return tx
 }
 
-func (*Repository[M, C, U, K]) attachPreload(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
+func (*Repository[M, K]) attachPreload(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
 	for _, relation := range params.Preload {
 		tx = tx.Preload(relation)
 	}
 	return tx
 }
 
-func (*Repository[M, C, U, K]) attachPagination(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
+func (*Repository[M, K]) attachPagination(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
 	offset := (params.Page - 1) * params.PageSize
 	return tx.Limit(params.PageSize).Offset(offset)
 }

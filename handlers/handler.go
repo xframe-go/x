@@ -13,13 +13,13 @@ import (
 )
 
 type Handler[M any, C repository.ToModel[M], U repository.ToModel[M], K comparable] struct {
-	Repo repository.Interface[M, C, U, K]
+	Repo repository.Interface[M, K]
 	responses.Base
 	opt *Option[M, C, U, K]
 }
 
 func NewHandler[M any, C repository.ToModel[M], U repository.ToModel[M], K comparable](
-	repo repository.Interface[M, C, U, K],
+	repo repository.Interface[M, K],
 	options ...WithOption[M, C, U, K],
 ) *Handler[M, C, U, K] {
 	opt := defaultOption[M, C, U, K]()
@@ -42,11 +42,18 @@ func (h *Handler[M, C, U, K]) List(ctx *echo.Context) error {
 	var (
 		c      = ctx.Request().Context()
 		params = requests.ParseQueryParams(ctx)
+		req    = NewContext(ctx)
 	)
+
+	if h.opt.beforeFetch != nil {
+		if err := h.opt.beforeFetch(req, &params); err != nil {
+			return h.Failed(ctx, err)
+		}
+	}
 
 	list, total, err := h.Repo.List(c, params)
 	if err != nil {
-		return err
+		return h.Failed(ctx, err)
 	}
 
 	resp := PaginationResp[M]{
@@ -61,11 +68,18 @@ func (h *Handler[M, C, U, K]) BatchList(ctx *echo.Context) error {
 	var (
 		c      = ctx.Request().Context()
 		params = requests.ParseQueryParams(ctx)
+		req    = NewContext(ctx)
 	)
+
+	if h.opt.beforeFetch != nil {
+		if err := h.opt.beforeFetch(req, &params); err != nil {
+			return h.Failed(ctx, err)
+		}
+	}
 
 	list, err := h.Repo.BatchList(c, params)
 	if err != nil {
-		return err
+		return h.Failed(ctx, err)
 	}
 
 	return h.Success(ctx, list)
@@ -114,9 +128,15 @@ func (h *Handler[M, C, U, K]) Show(ctx *echo.Context) error {
 	var (
 		c      = ctx.Request().Context()
 		params = requests.ParseQueryParams(ctx)
-
-		id = h.opt.primaryKeyConverter(ctx.Param("id"))
+		req    = NewContext(ctx)
+		id     = h.opt.primaryKeyConverter(ctx.Param("id"))
 	)
+
+	if h.opt.beforeFetch != nil {
+		if err := h.opt.beforeFetch(req, &params); err != nil {
+			return h.Failed(ctx, err)
+		}
+	}
 
 	show, err := h.Repo.Show(c, id, params)
 	if err != nil {

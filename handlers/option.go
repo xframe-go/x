@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/spf13/cast"
+	"github.com/xframe-go/x/requests"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +31,7 @@ type Option[M any, C any, U any, K comparable] struct {
 	afterDestroyed      Hook[M, C, U, K]
 	primaryKeyName      string
 	primaryKeyConverter PrimaryKeyConverter[K]
+	beforeFetch         func(req *Context, param *requests.QueryParams) error
 }
 
 type WithOption[M any, C any, U any, K comparable] func(opt *Option[M, C, U, K])
@@ -81,5 +83,11 @@ func BeforeDestroy[M any, C any, U any, K comparable](hook Hook[M, C, U, K]) Wit
 func AfterDestroyed[M any, C any, U any, K comparable](hook Hook[M, C, U, K]) WithOption[M, C, U, K] {
 	return func(opt *Option[M, C, U, K]) {
 		opt.afterDestroyed = hook
+	}
+}
+
+func BeforeFetch[M any, C any, U any, K comparable](hook func(req *Context, param *requests.QueryParams) error) WithOption[M, C, U, K] {
+	return func(opt *Option[M, C, U, K]) {
+		opt.beforeFetch = hook
 	}
 }

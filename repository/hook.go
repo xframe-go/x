@@ -6,26 +6,26 @@ import (
 	"gorm.io/gorm"
 )
 
-type UpdatedHook[M any, C ToModel[M], U ToModel[M], K comparable] func(ctx context.Context, tx *gorm.DB, key K, m M) error
+type UpdatedHook[M any, K comparable] func(ctx context.Context, tx *gorm.DB, key K, m M) error
 
-func WithUpdatedHook[M any, C ToModel[M], U ToModel[M], K comparable](hook UpdatedHook[M, C, U, K]) OptionFn[M, C, U, K] {
-	return func(c *options[M, C, U, K]) {
+func WithUpdatedHook[M any, K comparable](hook UpdatedHook[M, K]) OptionFn[M, K] {
+	return func(c *options[M, K]) {
 		c.UpdatedHook = hook
 	}
 }
 
-type CreatedHook[M any, C ToModel[M], U ToModel[M], K comparable] func(ctx context.Context, tx *gorm.DB, m *M) error
+type CreatedHook[M any, K comparable] func(ctx context.Context, tx *gorm.DB, m *M) error
 
-func WithCreatedHook[M any, C ToModel[M], U ToModel[M], K comparable](hook CreatedHook[M, C, U, K]) OptionFn[M, C, U, K] {
-	return func(c *options[M, C, U, K]) {
+func WithCreatedHook[M any, K comparable](hook CreatedHook[M, K]) OptionFn[M, K] {
+	return func(c *options[M, K]) {
 		c.CreatedHook = hook
 	}
 }
 
-type DeletedHook[M any, C ToModel[M], U ToModel[M], K comparable] func(ctx context.Context, tx *gorm.DB, deleted []M, keys ...K) error
+type DeletedHook[M any, K comparable] func(ctx context.Context, tx *gorm.DB, deleted []M, keys ...K) error
 
-func WithDeletedHook[M any, C ToModel[M], U ToModel[M], K comparable](hook DeletedHook[M, C, U, K]) OptionFn[M, C, U, K] {
-	return func(c *options[M, C, U, K]) {
+func WithDeletedHook[M any, K comparable](hook DeletedHook[M, K]) OptionFn[M, K] {
+	return func(c *options[M, K]) {
 		c.DeletedHook = hook
 	}
 }

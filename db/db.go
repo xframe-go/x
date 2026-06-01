@@ -20,6 +20,7 @@ func New(cfg Config) *DB {
 		drivers: map[string]Driver{
 			"mysql":    &MysqlDriver{},
 			"postgres": &PostgresDriver{},
+			"sqlite":   &SqliteDriver{},
 		},
 		connections: make(map[string]*gorm.DB),
 	}

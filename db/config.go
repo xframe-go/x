@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	"github.com/xframe-go/x/event"
 )
 
@@ -27,10 +25,3 @@ type (
 		Debug    bool
 	}
 )
-
-func (d DriverConf) Dsn() (string, error) {
-	if d.Driver == "mysql" {
-		return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local", d.Username, d.Password, d.Host, d.Port, d.DB, d.Charset), nil
-	}
-	return "", fmt.Errorf("unsupported driver: %s", d.Driver)
-}

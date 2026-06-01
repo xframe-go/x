@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
+	"github.com/spf13/cast"
 )
 
 func JWTMiddleware(authManager *Manager) echo.MiddlewareFunc {
@@ -25,19 +26,17 @@ func JWTMiddleware(authManager *Manager) echo.MiddlewareFunc {
 				})
 			}
 
-			c.Set("user_id", claims.ID)
+			ctx := c.Request().Context()
+
+			ctx = SetEnterpriseID(ctx, claims.EnterpriseID)
+
+			ctx = SetUserID(ctx, cast.ToUint64(claims.ID))
+
+			c.SetRequest(c.Request().WithContext(ctx))
 
 			return next(c)
 		}
 	}
-}
-
-func GetUserID(c *echo.Context) string {
-	userID, ok := c.Get("user_id").(string)
-	if !ok {
-		return ""
-	}
-	return userID
 }
 
 func getToken(c *echo.Context) (string, error) {

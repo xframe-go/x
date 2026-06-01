@@ -21,15 +21,19 @@ func NewManager(config Config) *Manager {
 
 type Claims struct {
 	jwt.RegisteredClaims
+	Payload      map[string]any `json:"payload"`
+	EnterpriseID uint64         `json:"enterprise_id"`
 }
 
-func (m *Manager) GenerateToken(userID string) (string, error) {
+func (m *Manager) GenerateToken(userID string, enterpriseID uint64, payload map[string]any) (string, error) {
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(m.config.Expiration) * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ID:        userID,
 		},
+		Payload:      payload,
+		EnterpriseID: enterpriseID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

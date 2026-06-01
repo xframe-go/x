@@ -36,7 +36,7 @@ func (repo *Repository[M, K]) List(ctx context.Context, params requests.QueryPar
 	var mo M
 	tx := x.DB().WithContext(ctx).Model(mo)
 
-	tx = repo.attachQuery(tx, params)
+	tx = repo.attachQuery(ctx, tx, params)
 
 	if err = tx.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -55,7 +55,7 @@ func (repo *Repository[M, K]) BatchList(ctx context.Context, params requests.Que
 	var mo M
 	tx := x.DB().WithContext(ctx).Model(mo)
 
-	tx = repo.attachQuery(tx, params)
+	tx = repo.attachQuery(ctx, tx, params)
 
 	if err = tx.Find(&data).Error; err != nil {
 		return nil, err
@@ -64,6 +64,12 @@ func (repo *Repository[M, K]) BatchList(ctx context.Context, params requests.Que
 }
 
 func (repo *Repository[M, K]) Create(ctx context.Context, tx *gorm.DB, m *M) error {
+	if repo.options.guardFunc != nil {
+		if err := repo.options.guardFunc(ctx, tx, m); err != nil {
+			return err
+		}
+	}
+
 	if err := tx.Create(m).Error; err != nil {
 		return err
 	}
@@ -80,7 +86,9 @@ func (repo *Repository[M, K]) Create(ctx context.Context, tx *gorm.DB, m *M) err
 func (repo *Repository[M, K]) Show(ctx context.Context, key K, params requests.QueryParams) (m M, err error) {
 	tx := x.DB().WithContext(ctx).Where("id", key)
 
-	repo.attachPreload(tx, params)
+	tx = repo.attachPreload(tx, params)
+
+	tx = repo.attachQuery(ctx, tx, params)
 
 	err = tx.First(&m).Error
 
@@ -88,6 +96,12 @@ func (repo *Repository[M, K]) Show(ctx context.Context, key K, params requests.Q
 }
 
 func (repo *Repository[M, K]) Update(ctx context.Context, tx *gorm.DB, key K, m M) error {
+	if repo.options.guardFunc != nil {
+		if err := repo.options.guardFunc(ctx, tx, &m); err != nil {
+			return err
+		}
+	}
+
 	_, err := x.Model[M](tx).Where(repo.primaryKeyName, key).Updates(ctx, m)
 	if err != nil {
 		return err
@@ -134,6 +148,14 @@ func (repo *Repository[M, K]) Destroy(ctx context.Context, tx *gorm.DB, keys ...
 		return nil
 	}
 
+	for _, mo := range mos {
+		if repo.options.guardFunc != nil {
+			if err := repo.options.guardFunc(ctx, tx, &mo); err != nil {
+				return err
+			}
+		}
+	}
+
 	var m M
 	if err := tx.Where("id", keys).Delete(&m).Error; err != nil {
 		return err
@@ -152,7 +174,7 @@ func (repo *Repository[M, K]) GetByPrimaryKey(ctx context.Context, key K) (M, er
 	return x.Model[M]().Where("id", key).First(ctx)
 }
 
-func (repo *Repository[M, K]) attachQuery(tx *gorm.DB, params requests.QueryParams) *gorm.DB {
+func (repo *Repository[M, K]) attachQuery(ctx context.Context, tx *gorm.DB, params requests.QueryParams) *gorm.DB {
 	for fe, sorter := range params.Sorter {
 		tx = tx.Order(clause.OrderByColumn{
 			Column: clause.Column{
@@ -171,7 +193,7 @@ func (repo *Repository[M, K]) attachQuery(tx *gorm.DB, params requests.QueryPara
 		})
 	}
 
-	repo.attachPreload(tx, params)
+	tx = repo.attachPreload(tx, params)
 
 	for _, filter := range params.Filters {
 		switch filter.Operator {
@@ -204,8 +226,11 @@ func (repo *Repository[M, K]) attachQuery(tx *gorm.DB, params requests.QueryPara
 		tx = repo.options.keywordExpression(tx, params.Keyword)
 	}
 
-	if len(repo.options.conditions) > 0 {
-		tx = tx.Where(repo.options.conditions)
+	if repo.options.conditions != nil {
+		conditions := repo.options.conditions(ctx)
+		if len(conditions) > 0 {
+			tx = tx.Where(conditions)
+		}
 	}
 
 	return tx
